@@ -4,8 +4,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates curl nginx iproute2 procps git openssh-client && \
     rm -rf /var/lib/apt/lists/*
 
-# Download picoclaw v0.2.5 binaries from GitHub releases
-RUN curl -sL "https://github.com/sipeed/picoclaw/releases/download/v0.2.5/picoclaw_Linux_x86_64.tar.gz" -o /tmp/picoclaw.tar.gz && \
+# Download picoclaw v0.2.4 binaries from GitHub releases (v0.2.5 missing launcher)
+RUN curl -sL "https://github.com/sipeed/picoclaw/releases/download/v0.2.4/picoclaw_Linux_x86_64.tar.gz" -o /tmp/picoclaw.tar.gz && \
     tar -xzf /tmp/picoclaw.tar.gz -C /tmp && \
     mv /tmp/picoclaw /usr/local/bin/ && \
     mv /tmp/picoclaw-launcher /usr/local/bin/ && \
