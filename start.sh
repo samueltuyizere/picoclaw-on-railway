@@ -57,10 +57,10 @@ fi
 
 sync_channel_env_to_security
 
-# Kill existing processes
-pkill -f picoclaw-launcher 2>/dev/null || true
-pkill nginx 2>/dev/null || true
-sleep 1
+# Kill existing processes aggressively
+pkill -9 -f picoclaw 2>/dev/null || true
+pkill -9 nginx 2>/dev/null || true
+sleep 2
 
 # Launcher PORT (internal)
 LAUNCHER_PORT=18800
