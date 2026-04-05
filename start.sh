@@ -62,8 +62,8 @@ pkill -9 -f picoclaw 2>/dev/null || true
 pkill -9 nginx 2>/dev/null || true
 sleep 2
 
-# Launcher PORT (internal)
-LAUNCHER_PORT=18800
+# Launcher PORT (internal - different from Railway PORT)
+LAUNCHER_PORT=18801
 
 # Clear cached launcher config
 rm -f "${PICOCLAW_HOME}/launcher-config.json"
@@ -78,9 +78,9 @@ sleep 3
 
 # Start nginx to proxy both launcher and gateway
 echo "=== Starting nginx ==="
-# Template nginx config - proxy to launcher on 18800
+# Template nginx config - proxy to launcher on 18801
 sed -e "s/listen 8080;/listen ${PORT:-18800};/" \
-    -e "s/server 127.0.0.1:18790/server 127.0.0.1:$LAUNCHER_PORT/" \
+    -e "s/server 127.0.0.1:18800/server 127.0.0.1:$LAUNCHER_PORT/" \
     /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 nginx -g 'daemon off;' &
 NGINX_PID=$!
