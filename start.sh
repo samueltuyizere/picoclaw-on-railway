@@ -90,13 +90,15 @@ sed "s/listen 8080;/listen $NGINX_PORT;/" /etc/nginx/nginx.conf.template >/etc/n
 # Kill any existing launcher process
 pkill -f "picoclaw-launcher" 2>/dev/null || true
 
-# Use a dynamic internal port to avoid conflicts on rapid restarts
-# The launcher doesn't need a fixed port since only nginx talks to it
-INTERNAL_PORT=$((18800 + RANDOM % 100))
-echo "Starting launcher on internal port $INTERNAL_PORT"
+# Clear any cached launcher config that might have wrong public URL
+rm -f "$PICOCLAW_HOME/launcher-config.json"
+
+# Use fixed port for launcher so nginx can reliably proxy
+LAUNCHER_PORT=18800
+echo "Starting launcher on port $LAUNCHER_PORT"
 
 # Start the launcher on localhost only (nginx proxies to it)
-picoclaw-launcher -port $INTERNAL_PORT &
+picoclaw-launcher -port $LAUNCHER_PORT &
 LAUNCHER_PID=$!
 
 # Wait for launcher to start
@@ -105,7 +107,7 @@ sleep 2
 # Update nginx config with the correct ports
 NGINX_PORT="${PORT:-8080}"
 sed -e "s/listen 8080;/listen $NGINX_PORT;/" \
-	-e "s/server 127.0.0.1:18800/server 127.0.0.1:$INTERNAL_PORT/" \
+	-e "s/server 127.0.0.1:18800/server 127.0.0.1:$LAUNCHER_PORT/" \
 	/etc/nginx/nginx.conf.template >/etc/nginx/nginx.conf
 
 # Start nginx as the public-facing proxy with basic auth
