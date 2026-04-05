@@ -1,27 +1,15 @@
-FROM golang:1.25-alpine AS builder
-
-# Rebuild v5 - complete launcher with web frontend
-RUN apk add --no-cache git make nodejs npm bash pnpm patch
-
-WORKDIR /src
-
-ARG PICOCLAW_VERSION=15a70ac45c5a37ddeeede8150431e5b6e1de6516
-
-RUN git clone --depth 1 --branch ${PICOCLAW_VERSION} https://github.com/sipeed/picoclaw.git .
-
-RUN go mod download
-RUN make build
-RUN make build-launcher
-
 FROM debian:bookworm-slim
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates curl nginx iproute2 procps git openssh-client && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy all PicoClaw binaries
-COPY --from=builder /src/build/picoclaw /usr/local/bin/picoclaw
-COPY --from=builder /src/build/picoclaw-launcher /usr/local/bin/picoclaw-launcher
+# Download picoclaw binaries from GitHub releases
+ARG PICOCLAW_VERSION=v0.2.4
+RUN curl -sL "https://github.com/sipeed/picoclaw/releases/download/${PICOCLAW_VERSION}/picoclaw_Linux_x86_64.tar.gz" | tar -xzf - && \
+    mv picoclaw /usr/local/bin/ && \
+    mv picoclaw-launcher /usr/local/bin/ && \
+    chmod +x /usr/local/bin/picoclaw /usr/local/bin/picoclaw-launcher
 
 # Copy nginx config template
 COPY nginx.conf /etc/nginx/nginx.conf.template
