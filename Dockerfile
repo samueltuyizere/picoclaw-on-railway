@@ -5,7 +5,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Download picoclaw binaries from GitHub releases
-ARG PICOCLAW_VERSION=v0.2.4
+ARG PICOCLAW_VERSION=v0.2.5
 RUN curl -sL "https://github.com/sipeed/picoclaw/releases/download/${PICOCLAW_VERSION}/picoclaw_Linux_x86_64.tar.gz" | tar -xzf - && \
     mv picoclaw /usr/local/bin/ && \
     mv picoclaw-launcher /usr/local/bin/ && \
