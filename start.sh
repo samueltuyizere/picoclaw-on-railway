@@ -108,6 +108,13 @@ LAUNCHER_PID=$!
 
 sleep 3
 
+# Start the gateway (bot gateway)
+picoclaw gateway &
+GATEWAY_PID=$!
+echo "Started gateway (PID: $GATEWAY_PID)"
+
+sleep 2
+
 # Update nginx config with correct ports
 sed -e "s/listen 8080;/listen $NGINX_PORT;/" \
 	-e "s/server 127.0.0.1:18800/server 127.0.0.1:$LAUNCHER_PORT/" \
@@ -118,7 +125,7 @@ nginx -g 'daemon off;' &
 NGINX_PID=$!
 
 # Handle shutdown gracefully
-trap "kill $LAUNCHER_PID $NGINX_PID ${OBSIDIAN_SYNC_PID-} 2>/dev/null; exit 0" SIGTERM SIGINT
+trap "kill $LAUNCHER_PID $GATEWAY_PID $NGINX_PID ${OBSIDIAN_SYNC_PID-} 2>/dev/null; exit 0" SIGTERM SIGINT
 
 # Wait for processes
 wait -n $LAUNCHER_PID $NGINX_PID
