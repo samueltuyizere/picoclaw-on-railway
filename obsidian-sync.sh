@@ -13,28 +13,26 @@ git config --global init.defaultBranch main
 
 # Clone repo if token is provided
 if [ -n "$GITHUB_TOKEN" ] && [ -n "$REPO_URL" ]; then
-	# Configure git credential helper
-	git config --global credential.helper store
-	echo "https://picoclaw:${GITHUB_TOKEN}@github.com" >~/.git-credentials
-	chmod 600 ~/.git-credentials
+	# Convert HTTPS URL to include token: https://TOKEN@github.com/user/repo
+	REPO_URL_WITH_TOKEN=$(echo "$REPO_URL" | sed "s|https://|https://${GITHUB_TOKEN}@|")
+	export REPO_URL_WITH_TOKEN
 
 	if [ ! -d "$OBSIDIAN_DIR/.git" ]; then
 		echo "Cloning Obsidian vault..."
-		git clone "$REPO_URL" "$OBSIDIAN_DIR" 2>&1 || {
+		git clone "$REPO_URL_WITH_TOKEN" "$OBSIDIAN_DIR" 2>&1 || {
 			echo "Clone failed, trying to initialize and fetch..."
 			mkdir -p "$OBSIDIAN_DIR"
 			cd "$OBSIDIAN_DIR"
 			git init
-			git remote add origin "$REPO_URL"
+			git remote add origin "$REPO_URL_WITH_TOKEN"
 			git fetch origin
-			# Checkout whatever the default branch is
 			DEFAULT_BRANCH=$(git branch -r | head -1 | sed 's/.*origin\///')
-			git checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH"
+			git checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH" 2>/dev/null || git checkout -b main origin/main
 		}
 	else
 		echo "Obsidian vault already exists, updating remote..."
 		cd "$OBSIDIAN_DIR"
-		git remote set-url origin "$REPO_URL"
+		git remote set-url origin "$REPO_URL_WITH_TOKEN"
 	fi
 else
 	echo "Warning: GITHUB_TOKEN or OBSIDIAN_REPO_URL not set, skipping Obsidian sync"
@@ -45,8 +43,11 @@ fi
 sync_vault() {
 	cd "$OBSIDIAN_DIR"
 
+	# Update remote with token for push operations
+	git remote set-url origin "$REPO_URL_WITH_TOKEN" 2>/dev/null || true
+
 	# Detect default branch
-	DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "master")
+	DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
 
 	# Pull latest changes
 	echo "[$(date)] Pulling latest changes from $DEFAULT_BRANCH..."

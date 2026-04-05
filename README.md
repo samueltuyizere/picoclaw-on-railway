@@ -1,38 +1,40 @@
-# PicoClaw Railway Template (1-click deploy)
+# PicoClaw Railway Template
 
-This repo packages **PicoClaw** for Railway with the built-in Launcher Web UI for configuration and chat.
+This repo packages **PicoClaw** for Railway with the built-in Launcher Web UI.
 
 ## What you get
 
-- **PicoClaw Launcher** - Official web-based UI for configuration and chat (port 18800)
-- **PicoClaw Gateway** - Bot gateway for Discord, Telegram, Slack, and more (port 18790)
+- **PicoClaw Launcher** - Official web-based UI for configuration and chat
+- **PicoClaw Gateway** - Bot gateway for Discord, Telegram, Slack, and more
+- **HTTP Basic Auth** - Secured web UI (default user: `admin`, password auto-generated)
 - **Persistent state** via Railway Volume (config, workspace, sessions survive redeploys)
 
 ## How it works
 
-- The container builds PicoClaw from source, including the launcher binary
-- The launcher provides a browser-based UI at port 18800 for configuration and chat
+- The container builds PicoClaw from source (pinned to a specific commit for reproducibility)
+- The launcher provides a browser-based UI proxied through nginx on port 8080
 - The launcher manages the gateway process automatically
 - Configuration is stored in `/data/.picoclaw/config.json`
 
-## Ports
+## Quick start
 
-| Port  | Service  | Description                                 |
-| ----- | -------- | ------------------------------------------- |
-| 18800 | Launcher | Web UI for configuration and chat           |
-| 18790 | Gateway  | Bot communication (Discord, Telegram, etc.) |
+1. Deploy this repo to Railway
+2. Check Railway logs for the auto-generated admin password
+3. Open your Railway URL and log in
 
 ## Environment variables
 
 | Variable                | Default           | Description                                      |
 | ----------------------- | ----------------- | ------------------------------------------------ |
-| `PICOCLAW_VERSION`      | (pinned commit)   | Git commit SHA to build PicoClaw from (pinned for reproducibility) |
-| `PICOCLAW_HOME`         | `/data/.picoclaw` | Config directory location                        |
-| `PICOCLAW_GATEWAY_HOST` | `0.0.0.0`         | Gateway listen address (set for external access) |
+| `PICOCLAW_VERSION`      | (pinned commit)   | Git commit SHA to build PicoClaw from           |
+| `PICOCLAW_HOME`         | `/data/.picoclaw` | Config directory location                       |
+| `PICOCLAW_GATEWAY_HOST` | `0.0.0.0`         | Gateway listen address                           |
+| `AUTH_USERNAME`         | `admin`           | Web UI username                                 |
+| `AUTH_PASSWORD`         | (auto-generated)  | Web UI password                                 |
 
-## Channel configuration via environment
+## Channel configuration
 
-You can configure channels directly via Railway environment variables:
+Configure channels via Railway environment variables:
 
 ```
 PICOCLAW_CHANNEL_DISCORD_ENABLED=true
@@ -41,7 +43,7 @@ PICOCLAW_CHANNEL_TELEGRAM_ENABLED=true
 PICOCLAW_CHANNEL_TELEGRAM_TOKEN=your-bot-token
 ```
 
-## Model configuration via environment
+## Model configuration
 
 ```
 PICOCLAW_MODEL_OPENROUTER_MODEL=openrouter/anthropic/claude-sonnet-4
@@ -49,9 +51,7 @@ PICOCLAW_MODEL_OPENROUTER_API_KEY=sk-or-v1-xxx
 PICOCLAW_DEFAULT_MODEL_NAME=openrouter
 ```
 
-## Getting chat tokens
-
-### Discord bot token
+## Getting Discord bot token
 
 1. Go to the [Discord Developer Portal](https://discord.com/developers/applications)
 2. **New Application** → pick a name
@@ -66,18 +66,19 @@ PICOCLAW_DEFAULT_MODEL_NAME=openrouter
 ```bash
 docker build -t picoclaw-railway-template .
 
-docker run --rm -p 18800:18800 -p 18790:18790 \
+docker run --rm -p 8080:8080 \
   -v $(pwd)/.tmpdata:/data \
   picoclaw-railway-template
 
-# Open http://localhost:18800 for the web UI
+# Open http://localhost:8080 for the web UI
+# Check container logs for admin password
 ```
 
 ## FAQ
 
 **Q: How do I access the web UI?**
 
-A: Go to your deployed instance's URL on port 18800. The launcher provides a full configuration and chat interface.
+A: Go to your Railway URL. The password is shown in the container logs on first startup.
 
 **Q: The gateway shows "No channels enabled". What's wrong?**
 
