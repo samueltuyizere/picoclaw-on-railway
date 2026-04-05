@@ -90,21 +90,35 @@ sleep 1
 # Clear any cached launcher config that might have wrong public URL
 rm -f "$PICOCLAW_HOME/launcher-config.json"
 
-# Launcher runs directly on Railway's PORT (or default 18800)
-# No nginx needed - Railway exposes the launcher directly
-PORT="${PORT:-18800}"
-echo "Starting launcher on port $PORT"
+# Launcher runs on internal port 18800
+# Nginx runs on port 8080 (hardcoded, Railway proxies 18800->8080)
+LAUNCHER_PORT=18800
+NGINX_PORT=8080
 
-# Force kill anything using the port
-fuser -k $PORT/tcp 2>/dev/null || true
-sleep 1
+# Kill any existing processes
+pkill -f "picoclaw-launcher" 2>/dev/null || true
+pkill nginx 2>/dev/null || true
+sleep 2
 
-# Start the launcher directly on the public port
-picoclaw-launcher -port $PORT &
+echo "Starting launcher on port $LAUNCHER_PORT, nginx on port $NGINX_PORT"
+
+# Start the launcher on localhost
+picoclaw-launcher -port $LAUNCHER_PORT &
 LAUNCHER_PID=$!
 
-# Handle shutdown gracefully
-trap "kill $LAUNCHER_PID ${OBSIDIAN_SYNC_PID-} 2>/dev/null; exit 0" SIGTERM SIGINT
+sleep 3
 
-# Wait for launcher to exit
-wait $LAUNCHER_PID
+# Update nginx config with correct ports
+sed -e "s/listen 8080;/listen $NGINX_PORT;/" \
+	-e "s/server 127.0.0.1:18800/server 127.0.0.1:$LAUNCHER_PORT/" \
+	/etc/nginx/nginx.conf.template >/etc/nginx/nginx.conf
+
+# Start nginx
+nginx -g 'daemon off;' &
+NGINX_PID=$!
+
+# Handle shutdown gracefully
+trap "kill $LAUNCHER_PID $NGINX_PID ${OBSIDIAN_SYNC_PID-} 2>/dev/null; exit 0" SIGTERM SIGINT
+
+# Wait for processes
+wait -n $LAUNCHER_PID $NGINX_PID

@@ -11,8 +11,8 @@ This repo packages **PicoClaw** for Railway with the built-in Launcher Web UI.
 ## How it works
 
 - The container builds PicoClaw from source (pinned to a specific commit for reproducibility)
-- The launcher provides a browser-based UI directly on port 18800
-- Railway exposes port 18800 to the public URL
+- The launcher runs on internal port 18800
+- Nginx proxies Railway's public port 8080 to the launcher
 - Configuration is stored in `/data/.picoclaw/config.json`
 
 ## Quick start
@@ -25,7 +25,7 @@ This repo packages **PicoClaw** for Railway with the built-in Launcher Web UI.
 
 | Variable                | Default           | Description                                      |
 | ----------------------- | ----------------- | ------------------------------------------------ |
-| `PORT`                  | `18800`           | Port the launcher listens on (Railway public port) |
+| `PORT`                  | `8080`            | Port nginx listens on (Railway public port)     |
 | `PICOCLAW_VERSION`      | (pinned commit)   | Git commit SHA to build PicoClaw from           |
 | `PICOCLAW_HOME`         | `/data/.picoclaw` | Config directory location                       |
 | `PICOCLAW_GATEWAY_HOST` | `0.0.0.0`         | Gateway listen address                           |
@@ -65,11 +65,11 @@ PICOCLAW_DEFAULT_MODEL_NAME=openrouter
 ```bash
 docker build -t picoclaw-railway-template .
 
-docker run --rm -p 18800:18800 \
+docker run --rm -p 8080:8080 \
   -v $(pwd)/.tmpdata:/data \
   picoclaw-railway-template
 
-# Open http://localhost:18800 for the web UI
+# Open http://localhost:8080 for the web UI
 ```
 
 ## FAQ
