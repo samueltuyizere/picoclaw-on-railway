@@ -9,11 +9,6 @@ ARG PICOCLAW_VERSION=15a70ac45c5a37ddeeede8150431e5b6e1de6516
 
 RUN git clone --depth 1 --branch ${PICOCLAW_VERSION} https://github.com/sipeed/picoclaw.git .
 
-# Patch the launcher to not include port in WebSocket URL when behind reverse proxy
-# This fixes Railway 502 errors on WebSocket connections
-COPY gateway_host.patch /tmp/gateway_host.patch
-RUN cd /src && patch -p1 < /tmp/gateway_host.patch
-
 RUN go mod download
 RUN make build
 RUN make build-launcher
