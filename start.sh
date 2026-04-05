@@ -93,10 +93,10 @@ sleep 2
 
 echo "=== Starting launcher on port $LAUNCHER_PORT ==="
 
-# Start the launcher on localhost
-picoclaw-launcher -port $LAUNCHER_PORT 2>&1 | tee /tmp/launcher.log &
+# Start the launcher on all interfaces (public mode)
+picoclaw-launcher -public -port $LAUNCHER_PORT 2>&1 | tee /tmp/launcher.log &
 LAUNCHER_PID=$!
-echo "Launcher started with PID: $LAUNCHER_PID"
+echo "Launcher started with PID: $LAUNCHER_PID (public mode)"
 
 sleep 3
 
