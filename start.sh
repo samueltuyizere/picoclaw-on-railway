@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Force output 
+echo "CONTAINER_START $(date)" >&2
+
 # Force output to be unbuffered
 export PYTHONUNBUFFERED=1
 
