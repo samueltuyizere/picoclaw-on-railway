@@ -57,8 +57,31 @@ fi
 
 sync_channel_env_to_security
 
-# Start nginx - proxy to gateway on 18790
+# Kill existing processes
+pkill -f picoclaw-launcher 2>/dev/null || true
+pkill nginx 2>/dev/null || true
+sleep 1
+
+# Launcher PORT (internal)
+LAUNCHER_PORT=18800
+
+# Clear cached launcher config
+rm -f "${PICOCLAW_HOME}/launcher-config.json"
+
+# Start launcher (listens on 127.0.0.1:18800)
+echo "=== Starting launcher on port $LAUNCHER_PORT ==="
+picoclaw-launcher -port $LAUNCHER_PORT 2>&1 | tee /tmp/launcher.log &
+LAUNCHER_PID=$!
+echo "Launcher started with PID: $LAUNCHER_PID"
+
+sleep 3
+
+# Start nginx to proxy both launcher and gateway
 echo "=== Starting nginx ==="
+# Template nginx config - proxy to launcher on 18800
+sed -e "s/listen 8080;/listen ${PORT:-18800};/" \
+    -e "s/server 127.0.0.1:18790/server 127.0.0.1:$LAUNCHER_PORT/" \
+    /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 nginx -g 'daemon off;' &
 NGINX_PID=$!
 echo "Nginx started with PID: $NGINX_PID"
@@ -77,10 +100,15 @@ echo "=== Discord debug messages ==="
 grep -i "discord" /tmp/gateway.log 2>/dev/null | tail -5 || echo "No Discord messages yet"
 
 # Handle shutdown
-trap "kill $NGINX_PID $GATEWAY_PID 2>/dev/null; exit 0" SIGTERM SIGINT
+trap "kill $LAUNCHER_PID $NGINX_PID $GATEWAY_PID 2>/dev/null; exit 0" SIGTERM SIGINT
 
 # Wait for nginx
 while kill -0 $NGINX_PID 2>/dev/null; do
+    if ! kill -0 $LAUNCHER_PID 2>/dev/null; then
+        echo "Launcher died, restarting..."
+        picoclaw-launcher -port $LAUNCHER_PORT 2>&1 | tee /tmp/launcher.log &
+        LAUNCHER_PID=$!
+    fi
     if ! kill -0 $GATEWAY_PID 2>/dev/null; then
         echo "Gateway died, restarting..."
         picoclaw gateway -d 2>&1 | tee -a /tmp/gateway.log &
