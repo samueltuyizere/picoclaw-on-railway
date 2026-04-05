@@ -38,4 +38,5 @@ ENV PICOCLAW_BINARY=/usr/local/bin/picoclaw
 
 EXPOSE 18800 18790
 
-CMD ["/app/start.sh"]
+# Run launcher in background first, then monitor both
+CMD /app/start.sh
