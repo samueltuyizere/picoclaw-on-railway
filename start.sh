@@ -86,6 +86,9 @@ rm -f "$PICOCLAW_HOME/launcher-config.json"
 # Launcher runs on Railway's PORT (18800)
 LAUNCHER_PORT="${PORT:-18800}"
 
+# Make picoclaw available to launcher
+export PICOCLAW_BINARY=/usr/local/bin/picoclaw
+
 # Kill any existing processes
 pkill -f "picoclaw-launcher" 2>/dev/null || true
 pkill nginx 2>/dev/null || true
