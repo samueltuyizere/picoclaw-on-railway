@@ -1,5 +1,2 @@
 .tmpdata/
-__pycache__/
-*.pyc
 .env
-.trunk
