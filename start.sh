@@ -90,10 +90,10 @@ sleep 1
 # Clear any cached launcher config that might have wrong public URL
 rm -f "$PICOCLAW_HOME/launcher-config.json"
 
-# Launcher runs on internal port 18800
-# Nginx runs on port 8080 (hardcoded, Railway proxies 18800->8080)
-LAUNCHER_PORT=18800
-NGINX_PORT=8080
+# Launcher runs on internal port 18801
+# Nginx runs on Railway's PORT (18800)
+LAUNCHER_PORT=18801
+NGINX_PORT="${PORT:-18800}"
 
 # Kill any existing processes
 pkill -f "picoclaw-launcher" 2>/dev/null || true
