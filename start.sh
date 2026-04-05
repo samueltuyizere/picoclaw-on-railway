@@ -83,24 +83,6 @@ if [ -n "$GITHUB_TOKEN" ] && [ -n "$OBSIDIAN_REPO_URL" ]; then
 	OBSIDIAN_SYNC_PID=$!
 fi
 
-# Set up HTTP Basic Auth for the web UI
-# Uses AUTH_USERNAME and AUTH_PASSWORD env vars (defaults provided)
-AUTH_USER="${AUTH_USERNAME:-admin}"
-AUTH_PASS="${AUTH_PASSWORD:-$(openssl rand -base64 12)}"
-echo "Setting up Basic Auth: user=$AUTH_USER"
-echo "$AUTH_USER:$(openssl passwd -apr1 "$AUTH_PASS")" >/etc/nginx/.htpasswd
-
-# Print password on first startup (check Railway logs to see it)
-if [ ! -f /data/.picoclaw/.auth_printed ]; then
-	echo "============================================"
-	echo "PicoClaw Web UI Credentials:"
-	echo "  Username: $AUTH_USER"
-	echo "  Password: $AUTH_PASS"
-	echo "============================================"
-	echo "Set AUTH_USERNAME and AUTH_PASSWORD env vars to customize."
-	touch /data/.picoclaw/.auth_printed
-fi
-
 # Update nginx config with the correct port
 NGINX_PORT="${PORT:-8080}"
 sed "s/listen 8080;/listen $NGINX_PORT;/" /etc/nginx/nginx.conf.template >/etc/nginx/nginx.conf

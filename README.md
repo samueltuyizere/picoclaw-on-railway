@@ -29,8 +29,7 @@ This repo packages **PicoClaw** for Railway with the built-in Launcher Web UI.
 | `PICOCLAW_VERSION`      | (pinned commit)   | Git commit SHA to build PicoClaw from           |
 | `PICOCLAW_HOME`         | `/data/.picoclaw` | Config directory location                       |
 | `PICOCLAW_GATEWAY_HOST` | `0.0.0.0`         | Gateway listen address                           |
-| `AUTH_USERNAME`         | `admin`           | Web UI username                                 |
-| `AUTH_PASSWORD`         | (auto-generated)  | Web UI password                                 |
+| `PICOCLAW_LAUNCHER_TOKEN` | (auto-generated) | Web UI auth token (set your own for persistence) |
 
 ## Channel configuration
 
@@ -78,7 +77,7 @@ docker run --rm -p 8080:8080 \
 
 **Q: How do I access the web UI?**
 
-A: Go to your Railway URL. The password is shown in the container logs on first startup.
+A: Go to your Railway URL. Set `PICOCLAW_LAUNCHER_TOKEN` env var to a persistent token, otherwise it auto-generates on each restart.
 
 **Q: The gateway shows "No channels enabled". What's wrong?**
 
