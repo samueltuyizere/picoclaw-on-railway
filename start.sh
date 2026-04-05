@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Force output to be unbuffered
+export PYTHONUNBUFFERED=1
+
 mkdir -p /data/.picoclaw/workspace
 mkdir -p /data/.picoclaw/sessions
 mkdir -p /data/.picoclaw/cron
@@ -100,10 +103,17 @@ sleep 2
 
 echo "=== Starting launcher on port $LAUNCHER_PORT ==="
 
-# Start the launcher (listens on 127.0.0.1)
+# Start the launcher (listens on 127.0.0.1 by default)
 picoclaw-launcher -port $LAUNCHER_PORT 2>&1 | tee /tmp/launcher.log &
 LAUNCHER_PID=$!
 echo "Launcher started with PID: $LAUNCHER_PID"
+
+# Wait and check if launcher is still running
+sleep 2
+if ! kill -0 $LAUNCHER_PID 2>/dev/null; then
+    echo "ERROR: Launcher died, checking logs:"
+    cat /tmp/launcher.log
+fi
 
 sleep 3
 
