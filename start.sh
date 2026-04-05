@@ -89,6 +89,10 @@ LAUNCHER_PORT="${PORT:-18800}"
 # Make picoclaw available to launcher
 export PICOCLAW_BINARY=/usr/local/bin/picoclaw
 
+# Launcher runs on internal port 18800
+LAUNCHER_PORT="18800"
+NGINX_PORT="${PORT:-18800}"
+
 # Kill any existing processes
 pkill -f "picoclaw-launcher" 2>/dev/null || true
 pkill nginx 2>/dev/null || true
@@ -96,12 +100,23 @@ sleep 2
 
 echo "=== Starting launcher on port $LAUNCHER_PORT ==="
 
-# Start the launcher on all interfaces (public mode)
-picoclaw-launcher -public -port $LAUNCHER_PORT 2>&1 | tee /tmp/launcher.log &
+# Start the launcher (listens on 127.0.0.1)
+picoclaw-launcher -port $LAUNCHER_PORT 2>&1 | tee /tmp/launcher.log &
 LAUNCHER_PID=$!
-echo "Launcher started with PID: $LAUNCHER_PID (public mode)"
+echo "Launcher started with PID: $LAUNCHER_PID"
 
 sleep 3
+
+# Start nginx to proxy to launcher
+echo "=== Starting nginx on port $NGINX_PORT ==="
+sed -e "s/listen 8080;/listen $NGINX_PORT;/" \
+    -e "s/server 127.0.0.1:18800/server 127.0.0.1:$LAUNCHER_PORT/" \
+    /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+nginx -g 'daemon off;' &
+NGINX_PID=$!
+echo "Nginx started with PID: $NGINX_PID"
+
+sleep 2
 
 # Start the gateway (bot gateway)
 echo "Starting gateway with PICOCLAW_CHANNEL_DISCORD_ENABLED=${PICOCLAW_CHANNEL_DISCORD_ENABLED}"
@@ -122,7 +137,7 @@ echo "=== Discord debug messages ==="
 grep -i "discord" /tmp/gateway_full.log 2>/dev/null | tail -5 || echo "No Discord messages yet"
 
 # Handle shutdown gracefully
-trap "kill $LAUNCHER_PID $GATEWAY_PID ${OBSIDIAN_SYNC_PID-} 2>/dev/null; exit 0" SIGTERM SIGINT
+trap "kill $LAUNCHER_PID $GATEWAY_PID $NGINX_PID ${OBSIDIAN_SYNC_PID-} 2>/dev/null; exit 0" SIGTERM SIGINT
 
 # Wait for launcher (primary process), but also monitor gateway
 while kill -0 $LAUNCHER_PID 2>/dev/null; do
