@@ -6,26 +6,26 @@ This repo packages **PicoClaw** for Railway with the built-in Launcher Web UI.
 
 - **PicoClaw Launcher** - Official web-based UI for configuration and chat
 - **PicoClaw Gateway** - Bot gateway for Discord, Telegram, Slack, and more
-- **HTTP Basic Auth** - Secured web UI (default user: `admin`, password auto-generated)
 - **Persistent state** via Railway Volume (config, workspace, sessions survive redeploys)
 
 ## How it works
 
 - The container builds PicoClaw from source (pinned to a specific commit for reproducibility)
-- The launcher provides a browser-based UI proxied through nginx on port 8080
-- The launcher manages the gateway process automatically
+- The launcher provides a browser-based UI directly on port 18800
+- Railway exposes port 18800 to the public URL
 - Configuration is stored in `/data/.picoclaw/config.json`
 
 ## Quick start
 
 1. Deploy this repo to Railway
-2. Check Railway logs for the auto-generated admin password
-3. Open your Railway URL and log in
+2. Set Railway to expose port 18800
+3. Open your Railway URL and log in with `PICOCLAW_LAUNCHER_TOKEN`
 
 ## Environment variables
 
 | Variable                | Default           | Description                                      |
 | ----------------------- | ----------------- | ------------------------------------------------ |
+| `PORT`                  | `18800`           | Port the launcher listens on (Railway public port) |
 | `PICOCLAW_VERSION`      | (pinned commit)   | Git commit SHA to build PicoClaw from           |
 | `PICOCLAW_HOME`         | `/data/.picoclaw` | Config directory location                       |
 | `PICOCLAW_GATEWAY_HOST` | `0.0.0.0`         | Gateway listen address                           |
@@ -65,19 +65,18 @@ PICOCLAW_DEFAULT_MODEL_NAME=openrouter
 ```bash
 docker build -t picoclaw-railway-template .
 
-docker run --rm -p 8080:8080 \
+docker run --rm -p 18800:18800 \
   -v $(pwd)/.tmpdata:/data \
   picoclaw-railway-template
 
-# Open http://localhost:8080 for the web UI
-# Check container logs for admin password
+# Open http://localhost:18800 for the web UI
 ```
 
 ## FAQ
 
 **Q: How do I access the web UI?**
 
-A: Go to your Railway URL. Set `PICOCLAW_LAUNCHER_TOKEN` env var to a persistent token, otherwise it auto-generates on each restart.
+A: Go to your Railway URL on port 18800. Set `PICOCLAW_LAUNCHER_TOKEN` env var for a persistent token.
 
 **Q: The gateway shows "No channels enabled". What's wrong?**
 
