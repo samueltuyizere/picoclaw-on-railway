@@ -83,29 +83,27 @@ if [ -n "$GITHUB_TOKEN" ] && [ -n "$OBSIDIAN_REPO_URL" ]; then
 	OBSIDIAN_SYNC_PID=$!
 fi
 
-# Update nginx config with the correct port
-NGINX_PORT="${PORT:-8080}"
-sed "s/listen 8080;/listen $NGINX_PORT;/" /etc/nginx/nginx.conf.template >/etc/nginx/nginx.conf
-
 # Kill any existing launcher process
 pkill -f "picoclaw-launcher" 2>/dev/null || true
+sleep 1
 
 # Clear any cached launcher config that might have wrong public URL
 rm -f "$PICOCLAW_HOME/launcher-config.json"
 
-# Use fixed port for launcher so nginx can reliably proxy
+# Launcher always runs on fixed internal port 18800
+# Nginx listens on the PORT env var (Railway's public port)
 LAUNCHER_PORT=18800
-echo "Starting launcher on port $LAUNCHER_PORT"
+NGINX_PORT="${PORT:-8080}"
+echo "Starting launcher on port $LAUNCHER_PORT, nginx on port $NGINX_PORT"
 
-# Start the launcher on localhost only (nginx proxies to it)
+# Start the launcher
 picoclaw-launcher -port $LAUNCHER_PORT &
 LAUNCHER_PID=$!
 
 # Wait for launcher to start
 sleep 2
 
-# Update nginx config with the correct ports
-NGINX_PORT="${PORT:-8080}"
+# Update nginx config
 sed -e "s/listen 8080;/listen $NGINX_PORT;/" \
 	-e "s/server 127.0.0.1:18800/server 127.0.0.1:$LAUNCHER_PORT/" \
 	/etc/nginx/nginx.conf.template >/etc/nginx/nginx.conf
