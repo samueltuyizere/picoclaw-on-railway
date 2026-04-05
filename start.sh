@@ -68,6 +68,9 @@ LAUNCHER_PORT=18801
 # Clear cached launcher config
 rm -f "${PICOCLAW_HOME}/launcher-config.json"
 
+# Clear stale PID files before starting
+rm -f "${PICOCLAW_HOME}/gateway.pid" "${PICOCLAW_HOME}/launcher.pid" 2>/dev/null || true
+
 # Start launcher (listens on 127.0.0.1:18800)
 echo "=== Starting launcher on port $LAUNCHER_PORT ==="
 picoclaw-launcher -port $LAUNCHER_PORT 2>&1 | tee /tmp/launcher.log &
@@ -111,6 +114,7 @@ while kill -0 $NGINX_PID 2>/dev/null; do
     fi
     if ! kill -0 $GATEWAY_PID 2>/dev/null; then
         echo "Gateway died, restarting..."
+        rm -f "${PICOCLAW_HOME}/gateway.pid" 2>/dev/null || true
         picoclaw gateway -d 2>&1 | tee -a /tmp/gateway.log &
         GATEWAY_PID=$!
     fi
