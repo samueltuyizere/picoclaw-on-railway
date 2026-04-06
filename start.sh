@@ -58,18 +58,47 @@ fi
 sync_channel_env_to_security
 
 # Kill existing processes aggressively
-pkill -9 -f picoclaw 2>/dev/null || true
-pkill -9 nginx 2>/dev/null || true
+pkill -9 -f "picoclaw" 2>/dev/null || true
+pkill -9 -f "gateway" 2>/dev/null || true
+pkill -9 -f "nginx" 2>/dev/null || true
 sleep 2
+
+# Clear all PID files to ensure clean start
+rm -f "${PICOCLAW_HOME}/"*.pid 2>/dev/null || true
+rm -f "/data/.picoclaw/"*.pid 2>/dev/null || true
+
+# Start obsidian sync AFTER pkill, as separate process that won't be affected
+echo "=== Checking Obsidian config ==="
+echo "OBSIDIAN_REPO_URL: ${OBSIDIAN_REPO_URL:-not set}"
+echo "GITHUB_TOKEN: ${GITHUB_TOKEN:+set}"
+
+OBSIDIAN_PID=""
+if [[ -n "$OBSIDIAN_REPO_URL" ]] && [[ -n "$GITHUB_TOKEN" ]]; then
+    echo "=== Starting Obsidian sync ==="
+    chmod +x /app/obsidian-sync.sh
+    
+    # Start in background with redirect to get output
+    bash -c '/app/obsidian-sync.sh' > /tmp/obsidian.log 2>&1 &
+    OBSIDIAN_PID=$!
+    echo "Obsidian sync started with PID: $OBSIDIAN_PID"
+    
+    # Wait a moment then check if it's still running
+    sleep 3
+    if kill -0 $OBSIDIAN_PID 2>/dev/null; then
+        echo "Obsidian sync is running"
+    else
+        echo "Obsidian sync failed to start, checking log:"
+        cat /tmp/obsidian.log
+    fi
+else
+    echo "Warning: OBSIDIAN_REPO_URL or GITHUB_TOKEN not set, skipping Obsidian sync"
+fi
 
 # Launcher PORT (internal - different from Railway PORT)
 LAUNCHER_PORT=18801
 
 # Clear cached launcher config
 rm -f "${PICOCLAW_HOME}/launcher-config.json"
-
-# Clear stale PID files before starting
-rm -f "${PICOCLAW_HOME}/gateway.pid" "${PICOCLAW_HOME}/launcher.pid" 2>/dev/null || true
 
 # Start launcher (listens on 127.0.0.1:18800)
 echo "=== Starting launcher on port $LAUNCHER_PORT ==="
@@ -91,19 +120,12 @@ echo "Nginx started with PID: $NGINX_PID"
 
 sleep 2
 
-# Start gateway (bot gateway)
-echo "=== Starting gateway ==="
-picoclaw gateway -d 2>&1 | tee /tmp/gateway.log &
+# Start gateway (bot gateway) - run WITHOUT -d flag to keep it in foreground
+echo "=== Starting gateway (no daemon) ==="
+picoclaw gateway -d 2>&1 &
 GATEWAY_PID=$!
 echo "Gateway started with PID: $GATEWAY_PID"
-
-sleep 5
-
-echo "=== Discord debug messages ==="
-grep -i "discord" /tmp/gateway.log 2>/dev/null | tail -5 || echo "No Discord messages yet"
-
-# Handle shutdown
-trap "kill $LAUNCHER_PID $NGINX_PID $GATEWAY_PID 2>/dev/null; exit 0" SIGTERM SIGINT
+trap "kill $LAUNCHER_PID $NGINX_PID $GATEWAY_PID $OBSIDIAN_PID 2>/dev/null; exit 0" SIGTERM SIGINT
 
 # Wait for nginx
 while kill -0 $NGINX_PID 2>/dev/null; do
@@ -114,8 +136,13 @@ while kill -0 $NGINX_PID 2>/dev/null; do
     fi
     if ! kill -0 $GATEWAY_PID 2>/dev/null; then
         echo "Gateway died, restarting..."
-        rm -f "${PICOCLAW_HOME}/gateway.pid" 2>/dev/null || true
-        picoclaw gateway -d 2>&1 | tee -a /tmp/gateway.log &
+        # Aggressively kill ALL picoclaw processes and clean PID files before restarting
+        pkill -9 -f picoclaw 2>/dev/null || true
+        pkill -9 -f gateway 2>/dev/null || true
+        sleep 2
+        rm -f "${PICOCLAW_HOME}/.picoclaw.pid" "/data/.picoclaw/"*.pid 2>/dev/null || true
+        rm -f "/tmp/"*gateway* 2>/dev/null || true
+        picoclaw gateway -d 2>&1 &
         GATEWAY_PID=$!
     fi
     sleep 10

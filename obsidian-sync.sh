@@ -11,28 +11,25 @@ git config --global user.email "picoclaw@railway.app"
 git config --global user.name "PicoClaw Bot"
 git config --global init.defaultBranch main
 
+# Disable git interactive prompts
+export GIT_TERMINAL_PROMPT=0
+
 # Clone repo if token is provided
 if [ -n "$GITHUB_TOKEN" ] && [ -n "$REPO_URL" ]; then
-	# Convert HTTPS URL to include token: https://TOKEN@github.com/user/repo
-	REPO_URL_WITH_TOKEN=$(echo "$REPO_URL" | sed "s|https://|https://${GITHUB_TOKEN}@|")
+	# Convert HTTPS URL to use token in username position
+	REPO_URL_WITH_TOKEN="${REPO_URL/https:\/\//https://${GITHUB_TOKEN}@}"
 	export REPO_URL_WITH_TOKEN
 
 	if [ ! -d "$OBSIDIAN_DIR/.git" ]; then
 		echo "Cloning Obsidian vault..."
+		mkdir -p "$(dirname "$OBSIDIAN_DIR")"
 		git clone "$REPO_URL_WITH_TOKEN" "$OBSIDIAN_DIR" 2>&1 || {
-			echo "Clone failed, trying to initialize and fetch..."
-			mkdir -p "$OBSIDIAN_DIR"
-			cd "$OBSIDIAN_DIR"
-			git init
-			git remote add origin "$REPO_URL_WITH_TOKEN"
-			git fetch origin
-			DEFAULT_BRANCH=$(git branch -r | head -1 | sed 's/.*origin\///')
-			git checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH" 2>/dev/null || git checkout -b main origin/main
+			echo "Clone failed: $?"
+			exit 1
 		}
+		echo "Clone successful!"
 	else
-		echo "Obsidian vault already exists, updating remote..."
-		cd "$OBSIDIAN_DIR"
-		git remote set-url origin "$REPO_URL_WITH_TOKEN"
+		echo "Obsidian vault already exists, will sync on next run"
 	fi
 else
 	echo "Warning: GITHUB_TOKEN or OBSIDIAN_REPO_URL not set, skipping Obsidian sync"
@@ -51,10 +48,10 @@ sync_vault() {
 
 	# Pull latest changes
 	echo "[$(date)] Pulling latest changes from $DEFAULT_BRANCH..."
-	git fetch origin
+	git fetch --depth 1 origin 2>/dev/null || echo "Fetch failed, continuing..."
 	git merge "origin/$DEFAULT_BRANCH" --ff-only 2>/dev/null || {
 		echo "Merge conflict or diverged branches, resetting to origin/$DEFAULT_BRANCH"
-		git reset --hard "origin/$DEFAULT_BRANCH"
+		git reset --hard "origin/$DEFAULT_BRANCH" 2>/dev/null || echo "Reset failed"
 	}
 
 	# Check for local changes
@@ -64,8 +61,8 @@ sync_vault() {
 		git commit -m "Auto-sync from PicoClaw ($(date -Iminutes))" || true
 		git push origin "$DEFAULT_BRANCH" || {
 			echo "Push failed, pulling and retrying..."
-			git pull --rebase origin "$DEFAULT_BRANCH"
-			git push origin "$DEFAULT_BRANCH"
+			git pull --rebase origin "$DEFAULT_BRANCH" 2>/dev/null || echo "Pull rebase failed"
+			git push origin "$DEFAULT_BRANCH" || echo "Push failed"
 		}
 		echo "[$(date)] Pushed changes to GitHub"
 	else
