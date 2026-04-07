@@ -15,7 +15,7 @@ RUN make build-launcher
 FROM debian:bookworm-slim
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates curl nginx iproute2 procps git openssh-client && \
+    apt-get install -y --no-install-recommends ca-certificates curl nginx iproute2 procps git openssh-client nano && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /src/build/picoclaw /usr/local/bin/picoclaw
