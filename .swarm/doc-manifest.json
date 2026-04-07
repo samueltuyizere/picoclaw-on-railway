@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "scanned_at": "2026-04-07T08:24:16.756Z",
+  "files": [
+    {
+      "path": ".trunk/plugins/trunk/actions/buf/README.md",
+      "title": "buf-gen",
+      "summary": "Generates files from `.proto` files using [`buf`](https://buf.build) whenever protobuf files change. **Must** have a `buf.gen.yaml` and `buf.work.yaml` (if running from project root)",
+      "lines": 5,
+      "mtime": 1773081481118.344
+    },
+    {
+      "path": ".trunk/plugins/trunk/actions/commitizen/README.md",
+      "title": "Commitizen",
+      "summary": "https://github.com/commitizen/cz-cli Under the default configuration, Commitizen will pull its configuration from commitlint config files, as there is a high likelihood both tools will be used toge...",
+      "lines": 63,
+      "mtime": 1773081481132.6265
+    },
+    {
+      "path": ".trunk/plugins/trunk/actions/commitlint/README.md",
+      "title": "Commitlint",
+      "summary": "https://github.com/conventional-changelog/commitlint 1. `echo \"export default {extends: ['@commitlint/config-conventional']}\" > commitlint.config.mjs` 2. `trunk actions enable commitlint` This will...",
+      "lines": 52,
+      "mtime": 1773081481147.3926
+    },
+    {
+      "path": ".trunk/plugins/trunk/actions/git-blame-ignore-revs/README.md",
+      "title": "git-blame-ignore-revs",
+      "summary": "This action will automatically configure git blame to use the `.git-blame-ignore-revs` file while it exists. A typical use of this file is to run `trunk fmt -a` on a repository. Commit those change...",
+      "lines": 9,
+      "mtime": 1773081481185.5696
+    },
+    {
+      "path": ".trunk/plugins/trunk/actions/go-mod-tidy-vendor/README.md",
+      "title": "go-mod-tidy-vendor",
+      "summary": "Run `go mod tidy` followed by `go mod vendor` whenever go.mod file is modified",
+      "lines": 4,
+      "mtime": 1773081481350.2778
+    },
+    {
+      "path": ".trunk/plugins/trunk/actions/go-mod-tidy/README.md",
+      "title": "go-mod-tidy",
+      "summary": "Run `go mod tidy` whenever go.mod file is modified",
+      "lines": 4,
+      "mtime": 1773081481366.8083
+    },
+    {
+      "path": ".trunk/plugins/trunk/actions/hello-world/python/README.md",
+      "title": "hello-world python",
+      "summary": "To enable run `trunk actions enable hello-world-python` To run `trunk run hello-world-python` or `git commit`",
+      "lines": 6,
+      "mtime": 1773081481380.9639
+    },
+    {
+      "path": ".trunk/plugins/trunk/actions/npm-check/README.md",
+      "title": "npm-check",
+      "summary": "Monitors changes to `package.json` and `package-lock.json` to verify whether your npm install is up-to-date. Enable `npm-check`, and you'll never have to worry about out-of-date node_modules again!",
+      "lines": 5,
+      "mtime": 1773081481415.0217
+    },
+    {
+      "path": ".trunk/plugins/trunk/actions/poetry/README.md",
+      "title": "Poetry",
+      "summary": "The recommended way to run [Poetry](https://python-poetry.org/docs/) using Trunk is to use the SYSTEM environment, rather than a hermetic setup. This is because Poetry provides its own environment ...",
+      "lines": 53,
+      "mtime": 1773081481532.3196
+    },
+    {
+      "path": ".trunk/plugins/trunk/actions/terraform-docs/README.md",
+      "title": "terraform-docs",
+      "summary": "Generate documentation from Terraform modules in various output formats. Read more about terraform-docs [here](https://terraform-docs.io). This action is intended to be used only with output mode a...",
+      "lines": 14,
+      "mtime": 1773081481551.0215
+    },
+    {
+      "path": ".trunk/plugins/trunk/actions/uv/README.md",
+      "title": "uv",
+      "summary": "The recommended way to run [uv](https://docs.astral.sh/uv/) using Trunk is to use the SYSTEM environment, rather than a hermetic setup. This is because uv provides its own environment management th...",
+      "lines": 50,
+      "mtime": 1773081481568.3267
+    },
+    {
+      "path": ".trunk/plugins/trunk/actions/yarn-check/README.md",
+      "title": "yarn-check",
+      "summary": "Monitors changes to `package.json` and `yarn.lock` to verify whether your yarn install is up-to-date. Enable `yarn-check`, and you'll never have to worry about out-of-date node_modules again!",
+      "lines": 6,
+      "mtime": 1773081481683.0017
+    },
+    {
+      "path": ".trunk/plugins/trunk/CONTRIBUTING.md",
+      "title": "Contribution",
+      "summary": "Thanks for contributing to Trunk's default plugins! Read on to learn more. - [Prerequisites](#prerequisites) - [Overview](#overview) - [Adding new linters](#linters) - [Adding new tools](#tools) - ...",
+      "lines": 186,
+      "mtime": 1773081481099.4336
+    },
+    {
+      "path": ".trunk/plugins/trunk/linters/ansible-lint/README.md",
+      "title": "Ansible-Lint",
+      "summary": "We now recommend using [inverse ignores](https://docs.trunk.io/code-quality/linters/ignoring-issues-and-files#ignoring-multiple-files) to run ansible-lint. For backwards compatibility, you will nee...",
+      "lines": 64,
+      "mtime": 1773081481752.9185
+    },
+    {
+      "path": ".trunk/plugins/trunk/linters/ansible-lint/test_data/jboss-standalone/README.md",
+      "title": "README.md",
+      "summary": "- Requires Ansible 1.2 or newer - Expects CentOS/RHEL 6 or 7 hosts These playbooks deploy a very basic implementation of JBoss Application Server, version 7. To use them, first edit the `hosts` inv...",
+      "lines": 52,
+      "mtime": 1773081481784.4854
+    },
+    {
+      "path": ".trunk/plugins/trunk/linters/djlint/README.md",
+      "title": "DJLint",
+      "summary": "- [README](https://github.com/Riverside-Healthcare/djlint#readme) - [Rules](https://www.djlint.com/docs/linter/) DJLint supports HTML templates for: - Django - Jinja - Nunjucks - Twig - Handlebars ...",
+      "lines": 27,
+      "mtime": 1773081484756.3606
+    },
+    {
+      "path": ".trunk/plugins/trunk/linters/eslint/README.md",
+      "title": "eslint",
+      "summary": "`eslint@9.x` requires a flat config format (see their [migration guide](https://eslint.org/docs/latest/use/migrate-to-9.0.0#flat-config)) in order to run. Trunk will automatically detect which conf...",
+      "lines": 92,
+      "mtime": 1773081485108.054
+    },
+    {
+      "path": ".trunk/plugins/trunk/linters/markdownlint/README.md",
+      "title": "markdownlint",
+      "summary": "Here is a conversion guide for [markdownlint-style ignores](https://github.com/DavidAnson/markdownlint/blob/main/README.md#configuration) and [trunk-ignores](https://docs.trunk.io/code-quality/lint...",
+      "lines": 92,
+      "mtime": 1773081486946.8755
+    },
+    {
+      "path": ".trunk/plugins/trunk/linters/mypy/README.md",
+      "title": "mypy",
+      "summary": "Here is a conversion guide for [mypy-style ignores](https://mypy.readthedocs.io/en/stable/common_issues.html#spurious-errors-and-locally-silencing-the-checker) and [trunk-ignores](https://docs.trun...",
+      "lines": 76,
+      "mtime": 1773081487114.759
+    },
+    {
+      "path": ".trunk/plugins/trunk/linters/nancy/test_data/README.md",
+      "title": "Testing",
+      "summary": "Ported directly from [intentionally-vulnerable-golang-project](https://github.com/sonatype-nexus-community/intentionally-vulnerable-golang-project/tree/master) for testing.",
+      "lines": 4,
+      "mtime": 1773081487329.8315
+    },
+    {
+      "path": ".trunk/plugins/trunk/linters/pragma-once/README.md",
+      "title": "pragma-once",
+      "summary": "Formatter that ensures every header file begins with `#pragma once`",
+      "lines": 4,
+      "mtime": 1773081488050.298
+    },
+    {
+      "path": ".trunk/plugins/trunk/linters/pre-commit-hooks/README.md",
+      "title": "Pre-Commit-Hooks",
+      "summary": "The set of formatter and linters in this suite are disabled by default. Some of the linters/formatters have different conflicting outputs. To enabled, add the list of checks you want in your trunk....",
+      "lines": 15,
+      "mtime": 1773081488216.0242
+    },
+    {
+      "path": ".trunk/plugins/trunk/linters/psscriptanalyzer/README.md",
+      "title": "PSScriptAnalyzer",
+      "summary": "This linter provides support for linting and formatting PowerShell via [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer). By default, this linter will use the [default set of inclu...",
+      "lines": 47,
+      "mtime": 1773081488348.042
+    },
+    {
+      "path": ".trunk/plugins/trunk/linters/ruff/README.md",
+      "title": "ruff",
+      "summary": "Here is a conversion guide for [ruff-style ignores](https://docs.astral.sh/ruff/linter/#disabling-fixes) and [trunk-ignores](https://docs.trunk.io/code-quality/linters/ignoring-issues-and-files): `...",
+      "lines": 76,
+      "mtime": 1773081489219.3362
+    },
+    {
+      "path": ".trunk/plugins/trunk/linters/sourcery/README.md",
+      "title": "Sourcery",
+      "summary": "Sourcery requires users to [login](https://docs.sourcery.ai/Guides/Getting-Started/Command-Line/) before being run. To run with trunk locally, create a Sourcery account and run `trunk exec sourcery...",
+      "lines": 29,
+      "mtime": 1773081489839.8794
+    },
+    {
+      "path": ".trunk/plugins/trunk/linters/tflint/README.md",
+      "title": "Tflint",
+      "summary": "`tflint` uses [config files](https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/config.md) local to the [directory](https://github.com/terraform-linters/tflint/blob/master/docs...",
+      "lines": 24,
+      "mtime": 1773081490707.5903
+    },
+    {
+      "path": ".trunk/plugins/trunk/linters/trivy/README.md",
+      "title": "Trivy",
+      "summary": "Trivy has the following subcommands: - `config` - Runs `trivy config` ([docs](https://aquasecurity.github.io/trivy/latest/docs/scanner/misconfiguration/)) to scan for misconfigurations in infrastru...",
+      "lines": 26,
+      "mtime": 1773081490824.6768
+    },
+    {
+      "path": ".trunk/plugins/trunk/README.md",
+      "title": "README.md",
+      "summary": "<!-- markdownlint-disable first-line-heading --> [![Trunk.io](https://static.trunk.io/assets/trunk_plugins_logo.png)](https://trunk.io) [![docs](https://img.shields.io/badge/-docs-darkgreen?logo=re...",
+      "lines": 291,
+      "mtime": 1773081481115.5361
+    },
+    {
+      "path": ".trunk/plugins/trunk/runtimes/README.md",
+      "title": "Runtimes",
+      "summary": "Runtime definitions are provided in this directory. Currently, runtimes don't have any testing in this repository, but their configuration is exercised with linter tests. Runtime upgrades are handl...",
+      "lines": 11,
+      "mtime": 1773081491410.5364
+    },
+    {
+      "path": ".trunk/plugins/trunk/tests/README.md",
+      "title": "Testing",
+      "summary": "```bash npm ci npm test <path-to-linter-subdir> ``` - [Overview](#overview) - [Configuring Tests](#configuring-tests) - [Running and Debugging Tests](#running-tests) - [Additional Options](#additio...",
+      "lines": 173,
+      "mtime": 1773081491489.6445
+    },
+    {
+      "path": "README.md",
+      "title": "PicoClaw Railway Template",
+      "summary": "This repo packages **PicoClaw** for Railway with the built-in Launcher Web UI. - **PicoClaw Launcher** - Official web-based UI for configuration and chat - **PicoClaw Gateway** - Bot gateway for Di...",
+      "lines": 94,
+      "mtime": 1775544805303.732
+    }
+  ]
+}
