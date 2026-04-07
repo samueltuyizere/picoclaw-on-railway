@@ -1,2 +1,4 @@
 .tmpdata/
 .env
+.swarm/
+.trunk/

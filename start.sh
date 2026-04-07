@@ -13,21 +13,8 @@ if [[ -f /data/.picoclaw/config.json ]]; then
     echo "Config file exists, checking validity..."
     if python3 -c "import json; json.load(open('/data/.picoclaw/config.json'))" 2>/dev/null; then
         echo "Config is valid JSON"
-        # Print full config (redact sensitive values)
-        python3 -c "
-import json
-with open('/data/.picoclaw/config.json') as f:
-    data = json.load(f)
-    # Redact sensitive fields
-    for key in ['launcher_token', 'providers', 'channels']:
-        if key in data:
-            data[key] = '<redacted>'
-    print(json.dumps(data, indent=2))
-"
     else
         echo "WARNING: Config is NOT valid JSON!"
-        echo "Content:"
-        cat /data/.picoclaw/config.json
     fi
 else
     echo "No config.json found - will run onboard"
@@ -178,7 +165,7 @@ GATEWAY_PID=$!
 echo "Gateway started with PID: $GATEWAY_PID"
 trap "kill $LAUNCHER_PID $NGINX_PID $GATEWAY_PID $OBSIDIAN_PID 2>/dev/null; exit 0" SIGTERM SIGINT
 
-# Wait for nginx
+# Wait for nginx - gateway will NOT auto-restart, manual restart only
 while kill -0 $NGINX_PID 2>/dev/null; do
     if ! kill -0 $LAUNCHER_PID 2>/dev/null; then
         echo "Launcher died, restarting..."
@@ -186,41 +173,10 @@ while kill -0 $NGINX_PID 2>/dev/null; do
         LAUNCHER_PID=$!
     fi
     if ! kill -0 $GATEWAY_PID 2>/dev/null; then
-        echo "Gateway died, restarting..."
-        # Get exit code
+        # Gateway died - log but DO NOT auto-restart (user will restart manually)
         wait $GATEWAY_PID 2>/dev/null
         EXIT_CODE=$?
-        echo "Gateway exited with code: $EXIT_CODE"
-        
-        # Aggressively kill ALL picoclaw processes and verify they're dead before restarting
-        # This prevents stale PID conflicts that cause restart loops
-        for i in {1..5}; do
-            pkill -9 -f "picoclaw" 2>/dev/null || true
-            pkill -9 -f "gateway" 2>/dev/null || true
-            sleep 1
-            if ! pgrep -f "picoclaw" >/dev/null && ! pgrep -f "gateway" >/dev/null; then
-                echo "All picoclaw processes terminated successfully"
-                break
-            fi
-            echo "Waiting for processes to terminate... attempt $i/5"
-            if [[ $i -eq 5 ]]; then
-                echo "WARNING: Some processes may still be running, proceeding anyway"
-            fi
-        done
-        
-        # Wait for ports to be released
-        sleep 2
-        
-        # Clean all PID files
-        rm -f "${PICOCLAW_HOME}/.picoclaw.pid" "/data/.picoclaw/"*.pid 2>/dev/null || true
-        rm -f "/tmp/"*gateway* 2>/dev/null || true
-        
-        # Debug: Show recent launcher logs
-        echo "=== Recent launcher logs ==="
-        tail -20 /tmp/launcher.log 2>/dev/null || echo "No launcher log"
-        
-        picoclaw gateway -d 2>&1 | tee /tmp/gateway.log &
-        GATEWAY_PID=$!
+        echo "Gateway died with exit code: $EXIT_CODE - Manual restart required"
     fi
     sleep 10
 done
