@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# Ensure /data is writable with full permissions
+mkdir -p /data
+chmod -R 777 /data
+
 # Ensure directories exist
 mkdir -p /data/.picoclaw/workspace
 mkdir -p /data/.picoclaw/sessions

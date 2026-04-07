@@ -15,8 +15,12 @@ RUN make build-launcher
 FROM debian:bookworm-slim
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates curl git && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates curl git bash sudo vim nano less procps \
+        openssh-client rsync coreutils && \
     rm -rf /var/lib/apt/lists/*
+# Ensure /data is writable
+RUN mkdir -p /data && chmod 777 /data
 
 COPY --from=builder /src/build/picoclaw /usr/local/bin/picoclaw
 COPY --from=builder /src/build/picoclaw-launcher /usr/local/bin/picoclaw-launcher
